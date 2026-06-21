@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Votara</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">V</div>
+        <div class="logo-text">
+          <span class="logo-name">Votara</span>
+          <span class="logo-tag">APIs & Projetos</span>
+        </div>
+      </a>
+      <div class="nav-btns">
+        <a href="index.html" class="btn btn-ghost">Voltar ao Início</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="auth-container">
+    <div class="auth-box">
+      <h2 id="auth-title">Acesse sua Conta</h2>
+      <p id="auth-subtitle">E gerencie seus projetos comprados.</p>
+
+      <!-- Erro -->
+      <div id="auth-error" style="color: #ff6b6b; background: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.2); padding: 0.75rem; border-radius: var(--r-sm); margin-bottom: 1.5rem; display: none; font-size: 0.85rem; text-align: center;">
+      </div>
+
+      <form id="auth-form">
+        <div class="form-group d-none" id="name-group">
+          <label for="name">Nome Completo</label>
+          <input type="text" id="name" class="form-control" placeholder="Ex: João da Silva">
+        </div>
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" class="form-control" placeholder="seu@email.com" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Senha</label>
+          <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-block" id="submit-btn" style="padding: 0.9rem;">Entrar</button>
+      </form>
+
+      <div class="auth-switch">
+        <span id="switch-text">Não tem uma conta?</span>
+        <a href="#" id="switch-btn">Cadastre-se</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let isLogin = true;
+      
+      const form = document.getElementById('auth-form');
+      const title = document.getElementById('auth-title');
+      const subtitle = document.getElementById('auth-subtitle');
+      const nameGroup = document.getElementById('name-group');
+      const nameInput = document.getElementById('name');
+      const emailInput = document.getElementById('email');
+      const passInput = document.getElementById('password');
+      const submitBtn = document.getElementById('submit-btn');
+      const switchText = document.getElementById('switch-text');
+      const switchBtn = document.getElementById('switch-btn');
+      const errorBox = document.getElementById('auth-error');
+
+      // Verifica se já tá logado e manda pro lugar certo, de forma segura
+      try {
+        if(window.auth && typeof window.auth.getCurrentUser === 'function') {
+          window.auth.getCurrentUser().then(user => {
+            if(user) {
+              const role = user.user_metadata?.role || 'student';
+              window.location.href = role === 'admin' ? 'admin.html' : 'dashboard.html';
+            }
+          }).catch(err => console.warn("Sessão não verificada:", err));
+        }
+      } catch (e) {
+        console.error("Erro ao verificar sessão inicial:", e);
+      }
+
+      function showError(msg) {
+        errorBox.textContent = msg;
+        errorBox.style.display = 'block';
+      }
+
+      function hideError() {
+        errorBox.style.display = 'none';
+      }
+
+      switchBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        hideError();
+        isLogin = !isLogin;
+        
+        if(isLogin) {
+          title.textContent = 'Acesse sua Conta';
+          subtitle.textContent = 'E gerencie seus projetos comprados.';
+          nameGroup.classList.add('d-none');
+          nameInput.required = false;
+          submitBtn.textContent = 'Entrar';
+          switchText.textContent = 'Não tem uma conta?';
+          switchBtn.textContent = 'Cadastre-se';
+        } else {
+          title.textContent = 'Criar Conta';
+          subtitle.textContent = 'Junte-se à plataforma e tenha acesso aos projetos.';
+          nameGroup.classList.remove('d-none');
+          nameInput.required = true;
+          submitBtn.textContent = 'Cadastrar';
+          switchText.textContent = 'Já tem uma conta?';
+          switchBtn.textContent = 'Entrar';
+        }
+      });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideError();
+        
+        if (!window.auth || !window.auth.login) {
+          showError("O script de autenticação não foi carregado corretamente. Verifique sua conexão com a internet ou extensões de bloqueio (AdBlock).");
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Aguarde...';
+
+        const email = emailInput.value;
+        const password = passInput.value;
+        const name = nameInput.value;
+
+        if(isLogin) {
+          const { error } = await window.auth.login(email, password);
+          if(error) {
+            showError(error.message === 'Invalid login credentials' ? 'E-mail ou senha incorretos.' : error.message);
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Entrar';
+          } else {
+            // Login success, requires role check to redirect
+            const user = await window.auth.getCurrentUser();
+            const role = user?.user_metadata?.role || 'student';
+            window.location.href = role === 'admin' ? 'admin.html' : 'dashboard.html';
+          }
+        } else {
+          const { error } = await window.auth.register(email, password, name);
+          if(error) {
+            showError(error.message);
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Cadastrar';
+          } else {
+            // Cadastrou, agora tenta logar com os mesmos dados pra criar a sessão
+            const { error: loginErr } = await window.auth.login(email, password);
+            if(loginErr) {
+              showError('Cadastro realizado, mas não foi possível logar automaticamente. Tente fazer login manualmente.');
+              isLogin = true;
+              switchBtn.click(); // forçar UI de login
+            } else {
+              window.location.href = 'dashboard.html';
+            }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>

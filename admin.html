@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Votara</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">V</div>
+        <div class="logo-text">
+          <span class="logo-name">Votara</span>
+          <span class="logo-tag">Painel Admin</span>
+        </div>
+      </a>
+      <div class="nav-btns">
+        <a href="index.html" class="btn btn-ghost">Vitrine</a>
+        <a href="#" id="nav-logout-btn" class="btn btn-ghost">Sair</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <ul class="sidebar-menu">
+        <li><a href="#" class="active" id="tab-dashboard">📊 Visão Geral</a></li>
+        <li><a href="#" id="tab-projects">🚀 Projetos (APIs)</a></li>
+        <li><a href="#" id="tab-clients">👥 Clientes & Acessos</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      
+      <!-- SEÇÃO VISÃO GERAL -->
+      <section id="sec-dashboard">
+        <h2 style="font-family: var(--hd); margin-bottom: 0.5rem; font-size: 2rem;">Painel de Controle</h2>
+        <p style="color: var(--txt2); margin-bottom: 2.5rem;">Resumo da sua plataforma Votara.</p>
+        
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+          <div class="card" style="padding: 1.5rem; text-align: center;">
+            <h3 style="font-size: 2rem; color: var(--primary);" id="total-projects">-</h3>
+            <p style="color: var(--txt2); font-size: 0.85rem; text-transform: uppercase;">Projetos Ativos</p>
+          </div>
+          <div class="card" style="padding: 1.5rem; text-align: center;">
+            <h3 style="font-size: 2rem; color: var(--wpp);" id="total-users">-</h3>
+            <p style="color: var(--txt2); font-size: 0.85rem; text-transform: uppercase;">Total de Usuários</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEÇÃO PROJETOS -->
+      <section id="sec-projects" class="d-none">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <h2 style="font-family: var(--hd); font-size: 2rem;">Gerenciar Projetos</h2>
+          <button class="btn btn-primary" onclick="openProjectModal()">+ Novo Projeto</button>
+        </div>
+        
+        <div class="card" style="overflow-x: auto;">
+          <table id="projects-table">
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Status</th>
+                <th>Criado em</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="4" style="text-align: center;">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SEÇÃO CLIENTES & ACESSOS -->
+      <section id="sec-clients" class="d-none">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <h2 style="font-family: var(--hd); font-size: 2rem;">Liberação de Acessos</h2>
+          <button class="btn btn-wpp" onclick="openAccessModal()">Liberar Novo Acesso</button>
+        </div>
+
+        <div class="card" style="overflow-x: auto;">
+          <table id="enrollments-table">
+            <thead>
+              <tr>
+                <th>Cliente (Email)</th>
+                <th>Projeto</th>
+                <th>Data</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="4" style="text-align: center;">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Modal Liberar Acesso -->
+  <div class="modal" id="modal-access">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-family: var(--hd);">Liberar Acesso</h3>
+        <button class="close-modal" onclick="closeModal('modal-access')">&times;</button>
+      </div>
+      
+      <p style="font-size: 0.85rem; color: var(--txt2); margin-bottom: 1.5rem;">
+        Selecione o usuário e o projeto para liberar o acesso.
+      </p>
+
+      <form id="form-grant-access">
+        <div class="form-group">
+          <label for="select-user">Email do Usuário</label>
+          <select id="select-user" class="form-control" required>
+            <option value="">Carregando usuários...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="select-project">Projeto Adquirido</label>
+          <select id="select-project" class="form-control" required>
+            <option value="">Carregando projetos...</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Confirmar Liberação</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Novo Projeto -->
+  <div class="modal" id="modal-project">
+    <div class="modal-content modal-wide" style="background: linear-gradient(145deg, rgba(15, 18, 25, 0.97) 0%, rgba(218, 165, 32, 0.06) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(218, 165, 32, 0.2); border-radius: var(--r-xl); box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05); max-height: 92vh; overflow-y: auto; scrollbar-width: none;">
+      <style>#modal-project .modal-content::-webkit-scrollbar { display: none; }</style>
+
+      <div class="modal-header" style="position: sticky; top: 0; background: linear-gradient(180deg, rgba(12,15,20,0.98) 80%, transparent 100%); z-index: 2; padding-bottom: 1rem; margin-bottom: 0;">
+        <div>
+          <span style="background: rgba(218,165,32,0.15); color: var(--primary); padding: 0.25rem 0.75rem; border-radius: var(--r-full); font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;">NOVO PROJETO</span>
+          <h3 style="font-family: var(--hd); font-size: 1.6rem; margin-top: 0.5rem;">Cadastrar API</h3>
+        </div>
+        <button class="close-modal" onclick="closeModal('modal-project')" style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">&times;</button>
+      </div>
+
+      <form id="form-project">
+
+        <!-- Seção 1: Identificação -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 1.5rem; margin-bottom: 1.5rem;">
+          <h4 style="color: var(--primary); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.25rem;">📋 Identificação</h4>
+          <div class="form-group">
+            <label for="proj-title">Título do Projeto *</label>
+            <input type="text" id="proj-title" class="form-control" placeholder="Ex: E-commerce Backend (Java + MySQL)" required>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="proj-desc">Descrição curta (aparece no card da vitrine) *</label>
+            <textarea id="proj-desc" class="form-control" rows="2" placeholder="Resumo em até 2 linhas..." required></textarea>
+          </div>
+        </div>
+
+        <!-- Seção 2: Galeria de Imagens -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 1.5rem; margin-bottom: 1.5rem;">
+          <h4 style="color: var(--primary); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.25rem;">🖼️ Galeria de Imagens</h4>
+
+          <!-- Drop zone -->
+          <div id="drop-zone" style="border: 2px dashed rgba(218,165,32,0.35); border-radius: var(--r-lg); padding: 2.5rem 1.5rem; text-align: center; cursor: pointer; transition: all 0.3s; background: rgba(218,165,32,0.04);" onclick="document.getElementById('file-input').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+            <div id="drop-icon" style="font-size: 2.5rem; margin-bottom: 0.75rem;">📸</div>
+            <p style="color: var(--txt); font-weight: 600; margin-bottom: 0.3rem;">Arraste as imagens aqui</p>
+            <p style="color: var(--txt2); font-size: 0.85rem;">ou clique para selecionar do seu PC</p>
+            <p style="color: var(--primary); font-size: 0.75rem; margin-top: 0.5rem;">JPG, PNG, WEBP — Máx. 5MB por imagem</p>
+          </div>
+          <input type="file" id="file-input" multiple accept="image/*" style="display:none" onchange="handleFileSelect(event)">
+          
+          <!-- Preview das imagens selecionadas -->
+          <div id="image-preview" style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem;"></div>
+          <p id="upload-status" style="color: var(--txt2); font-size: 0.8rem; margin-top: 0.5rem;"></p>
+        </div>
+
+        <!-- Seção 3: Conteúdo -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 1.5rem; margin-bottom: 1.5rem;">
+          <h4 style="color: var(--primary); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.25rem;">⚙️ Funcionalidades & Endpoints</h4>
+          
+          <div class="form-group">
+            <label for="proj-features">Descrição das Funcionalidades (texto livre)</label>
+            <textarea id="proj-features" class="form-control" rows="4" placeholder="Descreva as principais funcionalidades do sistema:&#10;• Autenticação JWT com refresh token&#10;• CRUD completo de produtos&#10;• Integração com gateway de pagamento..."></textarea>
+            <small style="color: var(--txt2); font-size: 0.75rem;">Este texto aparece na seção de Funcionalidades da página de venda.</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="proj-endpoints">Endpoints (JSON — opcional)</label>
+            <textarea id="proj-endpoints" class="form-control" rows="4" placeholder='[{"method": "POST", "path": "/api/auth/login", "description": "Autentica o usuário"}]' style="font-family: monospace; font-size: 0.8rem;"></textarea>
+            <small style="color: var(--txt2); font-size: 0.75rem;">Array JSON. Se preenchido, exibe as rotas em destaque na página de venda.</small>
+          </div>
+        </div>
+
+        <!-- Seção 4: TikTok -->
+        <div style="background: linear-gradient(135deg, rgba(255,0,80,0.05), rgba(0,242,254,0.05)); border: 1px solid rgba(255,0,80,0.2); border-radius: var(--r-lg); padding: 1.5rem; margin-bottom: 1.5rem;">
+          <h4 style="color: #ff0050; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.25rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 6px;"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 15.68a6.34 6.34 0 0 0 6.27 6.36 6.34 6.34 0 0 0 6.27-6.36V11.53a8.27 8.27 0 0 0 4 1.52V9.6a4.83 4.83 0 0 1-1.95-2.91z"/></svg>
+            Vídeo no TikTok
+          </h4>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="proj-tiktok">Link do vídeo de demonstração</label>
+            <input type="url" id="proj-tiktok" class="form-control" placeholder="https://www.tiktok.com/@seu_perfil/video/...">
+            <small style="color: var(--txt2); font-size: 0.75rem;">Aparece no botão "Ver Demonstração" na página de venda.</small>
+          </div>
+        </div>
+
+        <!-- Botão Salvar -->
+        <button type="submit" id="btn-save-project" class="btn btn-primary btn-block" style="padding: 1rem; font-size: 1rem; border-radius: var(--r-md); box-shadow: 0 5px 20px rgba(218,165,32,0.3);">
+          Salvar e Publicar API
+        </button>
+        <p style="text-align: center; color: var(--txt2); font-size: 0.75rem; margin-top: 0.75rem;">As imagens serão enviadas para o Supabase Storage antes de salvar.</p>
+      </form>
+    </div>
+  </div>
+
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Requer ser admin
+      const authData = await window.auth.requireAuth('admin');
+      if(!authData) return;
+
+      // Navegação por abas
+      const tabs = {
+        'tab-dashboard': document.getElementById('sec-dashboard'),
+        'tab-projects': document.getElementById('sec-projects'),
+        'tab-clients': document.getElementById('sec-clients')
+      };
+
+      Object.keys(tabs).forEach(tabId => {
+        document.getElementById(tabId).addEventListener('click', (e) => {
+          e.preventDefault();
+          
+          // Reset tabs
+          document.querySelectorAll('.sidebar-menu a').forEach(el => el.classList.remove('active'));
+          e.target.classList.add('active');
+
+          // Reset sections
+          Object.values(tabs).forEach(sec => sec.classList.add('d-none'));
+          tabs[tabId].classList.remove('d-none');
+
+          // Load data dynamically
+          if(tabId === 'tab-projects') loadProjects();
+          if(tabId === 'tab-clients') loadEnrollments();
+        });
+      });
+
+      // Carregar Overview
+      loadOverview();
+
+      async function loadOverview() {
+        try {
+          const { count: cCount } = await window.client.from('courses').select('*', { count: 'exact', head: true });
+          const { count: uCount } = await window.client.from('users').select('*', { count: 'exact', head: true });
+          
+          document.getElementById('total-projects').textContent = cCount || 0;
+          document.getElementById('total-users').textContent = uCount || 0;
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      async function loadProjects() {
+        const tbody = document.querySelector('#projects-table tbody');
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Carregando...</td></tr>';
+        const { data, error } = await window.client.from('courses').select('*').order('created_at', { ascending: false });
+        
+        if (error || !data || !data.length) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--txt2);">Nenhum projeto cadastrado ainda.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = '';
+        data.forEach(p => {
+          tbody.innerHTML += `
+            <tr>
+              <td><strong>${p.title}</strong></td>
+              <td><span class="card-badge" style="margin:0; background: ${p.active ? 'rgba(37, 211, 102, 0.15)' : 'rgba(255, 0, 0, 0.15)'}; color: ${p.active ? 'var(--wpp)' : 'red'};">` +
+                  `${p.active ? 'Ativo' : 'Inativo'}</span></td>
+              <td>${new Date(p.created_at).toLocaleDateString('pt-BR')}</td>
+              <td style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <a href="projeto.html?id=${p.id}" target="_blank" class="btn btn-ghost" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" title="Ver página de venda">Ver</a>
+                <button class="btn btn-ghost" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; color: ${p.active ? '#ff6b6b' : 'var(--wpp)'}; border-color: ${p.active ? 'rgba(255,107,107,0.3)' : 'rgba(37,211,102,0.3)'};"
+                  onclick="toggleActive('${p.id}', ${p.active})">${p.active ? 'Desativar' : 'Ativar'}</button>
+                <button class="btn btn-ghost" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; color: #ff6b6b; border-color: rgba(255,107,107,0.3);"
+                  onclick="deleteProject('${p.id}', '${p.title.replace(/'/g, '')}')">Excluir</button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      window.toggleActive = async (id, currentActive) => {
+        const { error } = await window.client.from('courses').update({ active: !currentActive }).eq('id', id);
+        if (error) { alert('Erro: ' + error.message); return; }
+        loadProjects();
+        loadOverview();
+      };
+
+      window.deleteProject = async (id, title) => {
+        if (!confirm(`Tem certeza que deseja EXCLUIR permanentemente "${title}"? Esta ação não pode ser desfeita.`)) return;
+        const { error } = await window.client.from('courses').delete().eq('id', id);
+        if (error) { alert('Erro ao excluir: ' + error.message); return; }
+        loadProjects();
+        loadOverview();
+      };
+
+      async function loadEnrollments() {
+        const tbody = document.querySelector('#enrollments-table tbody');
+        const { data, error } = await window.client
+          .from('enrollments')
+          .select(`
+            id,
+            created_at,
+            users ( email ),
+            courses ( title )
+          `)
+          .order('created_at', { ascending: false });
+        
+        if(error || !data.length) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Nenhuma liberação registrada.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = '';
+        data.forEach(e => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${e.users?.email || 'Usuário Deletado'}</td>
+              <td><strong>${e.courses?.title || 'Projeto Deletado'}</strong></td>
+              <td>${new Date(e.created_at).toLocaleDateString()}</td>
+              <td>
+                <button class="btn btn-ghost" style="padding: 0.3rem 0.6rem; font-size: 0.75rem; color: #ff6b6b; border-color: rgba(255, 107, 107, 0.3);" onclick="removeAccess('${e.id}')">Revogar</button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      // Modais
+      window.openProjectModal = () => document.getElementById('modal-project').classList.add('active');
+      window.closeModal = (id) => document.getElementById(id).classList.remove('active');
+      
+      window.openAccessModal = async () => {
+        document.getElementById('modal-access').classList.add('active');
+        
+        // Popula selects
+        const selectUser = document.getElementById('select-user');
+        const selectProj = document.getElementById('select-project');
+        
+        const { data: users } = await window.client.from('users').select('id, email').order('email');
+        selectUser.innerHTML = '<option value="">Selecione um Usuário...</option>';
+        if(users) users.forEach(u => selectUser.innerHTML += `<option value="${u.id}">${u.email}</option>`);
+
+        const { data: projs } = await window.client.from('courses').select('id, title').eq('active', true).order('title');
+        selectProj.innerHTML = '<option value="">Selecione um Projeto...</option>';
+        if(projs) projs.forEach(p => selectProj.innerHTML += `<option value="${p.id}">${p.title}</option>`);
+      };
+
+      // ======================================================
+      // DRAG AND DROP & FILE UPLOAD
+      // ======================================================
+      let selectedFiles = [];
+
+      window.handleDragOver = (e) => {
+        e.preventDefault();
+        document.getElementById('drop-zone').style.borderColor = 'var(--primary)';
+        document.getElementById('drop-zone').style.background = 'rgba(218,165,32,0.08)';
+      };
+      window.handleDragLeave = (e) => {
+        document.getElementById('drop-zone').style.borderColor = 'rgba(218,165,32,0.35)';
+        document.getElementById('drop-zone').style.background = 'rgba(218,165,32,0.04)';
+      };
+      window.handleDrop = (e) => {
+        e.preventDefault();
+        handleDragLeave(e);
+        addFiles(Array.from(e.dataTransfer.files));
+      };
+      window.handleFileSelect = (e) => {
+        addFiles(Array.from(e.target.files));
+      };
+
+      function addFiles(files) {
+        const valid = files.filter(f => f.type.startsWith('image/') && f.size <= 5 * 1024 * 1024);
+        if (valid.length < files.length) {
+          document.getElementById('upload-status').textContent = '⚠️ Alguns arquivos foram ignorados (não são imagem ou excedem 5MB).';
+        }
+        selectedFiles = selectedFiles.concat(valid);
+        renderPreviews();
+      }
+
+      function renderPreviews() {
+        const container = document.getElementById('image-preview');
+        container.innerHTML = '';
+        selectedFiles.forEach((file, idx) => {
+          const url = URL.createObjectURL(file);
+          const label = idx === 0 ? '<span style="position:absolute;top:4px;left:4px;background:var(--primary);color:#000;font-size:0.6rem;font-weight:800;padding:1px 5px;border-radius:4px;">CAPA</span>' : '';
+          container.innerHTML += `
+            <div style="position: relative; width: 80px; height: 80px; border-radius: var(--r-md); overflow: hidden; border: 1px solid var(--border);">
+              ${label}
+              <img src="${url}" style="width:100%;height:100%;object-fit:cover;">
+              <button onclick="removeFile(${idx})" style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,0.7);border:none;color:#fff;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>
+            </div>`;
+        });
+        document.getElementById('upload-status').textContent = selectedFiles.length > 0 ? `${selectedFiles.length} imagem(ns) selecionada(s). A primeira é a capa.` : '';
+      }
+
+      window.removeFile = (idx) => {
+        selectedFiles.splice(idx, 1);
+        renderPreviews();
+      };
+
+      async function uploadImages() {
+        const urls = [];
+        const statusEl = document.getElementById('upload-status');
+        for (let i = 0; i < selectedFiles.length; i++) {
+          const file = selectedFiles[i];
+          const ext = file.name.split('.').pop();
+          const path = `projects/${Date.now()}_${i}.${ext}`;
+          statusEl.textContent = `Enviando imagem ${i + 1} de ${selectedFiles.length}...`;
+          const { error: uploadErr } = await window.client.storage.from('course_assets').upload(path, file, { upsert: true });
+          if (uploadErr) throw new Error('Erro no upload: ' + uploadErr.message);
+          const { data: { publicUrl } } = window.client.storage.from('course_assets').getPublicUrl(path);
+          urls.push(publicUrl);
+        }
+        return urls;
+      }
+
+      // ======================================================
+      // SALVAR PROJETO
+      // ======================================================
+      document.getElementById('form-project').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btn-save-project');
+        const title = document.getElementById('proj-title').value.trim();
+        const desc = document.getElementById('proj-desc').value.trim();
+        const features = document.getElementById('proj-features').value.trim();
+        const tiktokUrl = document.getElementById('proj-tiktok').value.trim();
+        const endpointsStr = document.getElementById('proj-endpoints').value.trim();
+
+        if (selectedFiles.length === 0) {
+          alert('Adicione pelo menos uma imagem de capa.');
+          return;
+        }
+
+        let endpointsJson = null;
+        if (endpointsStr) {
+          try { endpointsJson = JSON.parse(endpointsStr); }
+          catch { alert('JSON dos Endpoints inválido. Verifique as aspas ou deixe vazio.'); return; }
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Enviando imagens...';
+
+        try {
+          const imageUrls = await uploadImages();
+          
+          document.getElementById('upload-status').textContent = 'Salvando no banco de dados...';
+          btn.textContent = 'Salvando...';
+
+          const { error } = await window.client.from('courses').insert({
+            title,
+            description: desc,
+            cover_image_path: imageUrls[0] || null,
+            images: imageUrls,
+            features: features || null,
+            tiktok_url: tiktokUrl || null,
+            api_endpoints: endpointsJson,
+            active: true
+          });
+
+          if (error) throw error;
+
+          alert('✅ API publicada com sucesso!');
+          closeModal('modal-project');
+          document.getElementById('form-project').reset();
+          selectedFiles = [];
+          renderPreviews();
+          loadProjects();
+          loadOverview();
+        } catch (err) {
+          console.error(err);
+          alert('Erro ao salvar: ' + err.message);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Salvar e Publicar API';
+        }
+      });
+
+      document.getElementById('form-grant-access').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const userId = document.getElementById('select-user').value;
+        const courseId = document.getElementById('select-project').value;
+
+        try {
+          const { error } = await window.client.from('enrollments').insert({
+            user_id: userId,
+            course_id: courseId
+          });
+
+          if(error) {
+            if(error.code === '23505') alert('Usuário já possui acesso a este projeto.');
+            else throw error;
+          } else {
+            alert('Acesso liberado com sucesso!');
+            closeModal('modal-access');
+            loadEnrollments(); // recarrega a tabela
+          }
+        } catch(err) {
+          console.error(err);
+          alert('Erro ao liberar acesso: ' + err.message);
+        }
+      });
+
+      window.removeAccess = async (enrollmentId) => {
+        if(!confirm('Tem certeza que deseja revogar este acesso?')) return;
+        try {
+          const { error } = await window.client.from('enrollments').delete().eq('id', enrollmentId);
+          if(error) throw error;
+          loadEnrollments();
+        } catch(err) {
+          alert('Erro ao revogar acesso: ' + err.message);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

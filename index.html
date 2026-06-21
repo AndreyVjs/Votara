@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Votara — Marketplace de APIs & Projetos</title>
+  <meta name="description" content="Explore nosso marketplace de APIs nichadas e pré-desenvolvidas. Projetos validados prontos para escalar!" />
+  
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Estilos Base -->
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">V</div>
+        <div class="logo-text">
+          <span class="logo-name">Votara</span>
+          <span class="logo-tag">APIs & Projetos</span>
+        </div>
+      </a>
+      <div class="nav-btns">
+        <a href="sobre-mim.html" class="btn btn-ghost" style="border-color: transparent;">Sobre Mim</a>
+        <a href="login.html" id="nav-login-btn" class="btn btn-ghost">Login / Cadastro</a>
+        <a href="dashboard.html" id="nav-dashboard-btn" class="btn btn-ghost d-none">Meu Painel</a>
+        <a href="admin.html" id="nav-admin-btn" class="btn btn-primary d-none">Painel Admin</a>
+        <a href="#" id="nav-logout-btn" class="btn btn-ghost d-none">Sair</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">🚀 Novas APIs Adicionadas Esta Semana</div>
+      <h1>Acelere seu Desenvolvimento com <em>APIs Prontas</em></h1>
+      <p>Tenha acesso imediato a sistemas backend robustos, microserviços validados e projetos front-end escaláveis. Economize meses de trabalho.</p>
+      
+      <div class="hero-cta">
+        <a href="#catalogo" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.1rem; border-radius: var(--r-xl);">Explorar APIs</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIKTOK BANNER -->
+  <section class="tiktok-promo">
+    <h2 style="font-family: var(--hd); font-size: 2.5rem; margin-bottom: 1rem; color: #fff;">Veja os sistemas em ação!</h2>
+    <p style="color: var(--txt2); font-size: 1.15rem; max-width: 600px; margin: 0 auto 2rem auto;">Posto vídeos frequentes demonstrando o funcionamento completo, funcionalidades e o código-fonte por trás dessas APIs.</p>
+    <a href="#" target="_blank" class="btn btn-primary" style="background: #111; color: #fff; border-color: #ff0050; padding: 1rem 2rem; border-radius: var(--r-xl); display: inline-flex; gap: 0.5rem; align-items: center; box-shadow: 0 5px 25px rgba(255, 0, 80, 0.4);">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 15.68a6.34 6.34 0 0 0 6.27 6.36 6.34 6.34 0 0 0 6.27-6.36V11.53a8.27 8.27 0 0 0 4 1.52V9.6a4.83 4.83 0 0 1-1.95-2.91z"/></svg>
+      Acessar meu TikTok
+    </a>
+  </section>
+
+  <!-- CATÁLOGO -->
+  <section id="catalogo" class="section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">O que temos para você</span>
+        <h2 class="section-title">Vitrine de Projetos</h2>
+        <p style="color: var(--txt2); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">Projetos que construí e utilizo. Escolha o que melhor se adapta à sua demanda atual.</p>
+      </div>
+
+      <div class="grid" id="catalog-grid">
+        <!-- Loader / Skeleton -->
+        <div class="card" style="height: 400px; display: flex; align-items: center; justify-content: center;">
+          <p style="color: var(--txt2);">Carregando APIs...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section class="section" style="background: var(--surface); text-align: center; border: 1px solid var(--border); border-radius: var(--r-xl); max-width: 1200px; margin: 4rem auto 6rem auto; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);">
+    <div class="container" style="max-width: 600px;">
+      <h2 style="font-family: var(--hd); font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;">Precisa de algo customizado?</h2>
+      <p style="color: var(--txt2); margin-bottom: 2rem; line-height: 1.6;">Além do que está na vitrine, desenvolvo sistemas e APIs sob demanda para o seu negócio.</p>
+      <a href="https://wa.me/5599999999999" target="_blank" class="btn btn-wpp" style="padding: 1rem 2rem;">Solicite um Orçamento no Zap</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="text-align: center; padding: 2rem; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--txt2); background: transparent;">
+    <p>&copy; 2026 Votara. Todos os direitos reservados. Feito com 💛 e muito código.</p>
+  </footer>
+
+  <!-- FAB WhatsApp -->
+  <div class="fab">
+    <a href="https://wa.me/5599999999999" target="_blank">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+      </svg>
+    </a>
+  </div>
+
+  <!-- Scripts -->
+  <script src="assets/js/supabase.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const grid = document.getElementById('catalog-grid');
+      
+      try {
+        const { data: courses, error } = await supabase
+          .from('courses')
+          .select('*')
+          .eq('active', true)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        let displayCourses = courses;
+
+        if (!courses || courses.length === 0) {
+          displayCourses = [
+            {
+              id: 'mock_1',
+              title: 'API Sistema de Delivery (Node.js)',
+              description: 'Backend pronto focado em delivery de comida com geolocalização, painel de restaurante e pedidos via WebSockets.',
+              cover_image_path: null
+            },
+            {
+              id: 'mock_2',
+              title: 'SaaS Multi-Tenant (Kotlin)',
+              description: 'Arquitetura base para SaaS corporativo com isolamento de dados, níveis de permissão e cobrança via Stripe integrada.',
+              cover_image_path: null
+            },
+            {
+              id: 'mock_3',
+              title: 'E-commerce Headless (Java)',
+              description: 'Gestão completa de catálogo, controle de estoque inteligente, carrinho e checkout transparente para qualquer front-end.',
+              cover_image_path: null
+            }
+          ];
+        }
+
+        grid.innerHTML = '';
+        displayCourses.forEach(course => {
+          const coverHtml = course.cover_image_path 
+            ? `<img src="${course.cover_image_path}" alt="${course.title}">`
+            : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; background: linear-gradient(135deg, var(--primary-glow), rgba(12, 15, 20, 0.8));">🚀</div>`;
+
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <div class="card-img">
+              ${coverHtml}
+            </div>
+            <div class="card-body">
+              <span class="card-badge" style="background: rgba(218, 165, 32, 0.15); color: var(--primary);">PROJETO API</span>
+              <h3 class="card-title">${course.title}</h3>
+              <p class="card-desc">${course.description || 'Nenhuma descrição disponível.'}</p>
+              <div class="card-footer" style="justify-content: flex-end;">
+                <a href="projeto.html?id=${course.id}" class="btn btn-ghost" style="padding: 0.5rem 1.5rem; font-size: 0.85rem;">Veja Mais</a>
+              </div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+
+      } catch (err) {
+        console.error('Erro ao carregar catálogo:', err);
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: red; padding: 3rem;">Erro ao carregar os projetos. Tente recarregar a página.</div>';
+      }
+    });
+  </script>
+</body>
+</html>
